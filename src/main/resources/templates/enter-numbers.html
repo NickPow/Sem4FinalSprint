@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter Numbers - BST Builder</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; padding: 8px; }
+        button { margin-top: 10px; padding: 6px 12px; }
+        pre { background: #f7f7f7; padding: 10px; white-space: pre-wrap; word-wrap: break-word; }
+        .svg-wrap { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+<h1>Binary Search Tree Builder</h1>
+<p>Enter numbers separated by spaces or commas:</p>
+
+<textarea id="numbers" rows="3"></textarea><br>
+<label>
+    <input type="checkbox" id="balanced"> Balance Tree (Bonus)
+</label><br>
+
+<button id="submitBtn">Submit</button>
+<a href="/previous-trees"><button type="button">Show Previous</button></a>
+
+<pre id="output"></pre>
+
+<div class="svg-wrap">
+    <svg id="treeSvg" width="850" height="500"></svg>
+</div>
+
+<script>
+document.getElementById('submitBtn').addEventListener('click', async () => {
+    const numbers = document.getElementById('numbers').value;
+    const balanced = document.getElementById('balanced').checked;
+
+    const res = await fetch('/process-numbers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ numbers, balanced })
+    });
+
+    if (res.ok) {
+        const jsonText = await res.text();
+        document.getElementById('output').textContent = jsonText;
+        try {
+            const tree = JSON.parse(jsonText);
+            drawTree(tree);
+        } catch (e) {
+            console.error("Invalid JSON", e);
+        }
+    } else {
+        document.getElementById('output').textContent = 'Error: ' + res.status;
+    }
+});
+
+function clearSvg() {
+    const svg = document.getElementById('treeSvg');
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+}
+
+function drawTree(tree) {
+    clearSvg();
+    const svg = document.getElementById('treeSvg');
+    const width = svg.getAttribute('width');
+    const height = svg.getAttribute('height');
+
+    const positions = new Map();
+    layout(tree, 0, 0, width, 80, positions);
+
+    drawEdges(tree, positions);
+    drawNodes(tree, positions);
+}
+
+function layout(node, depth, x0, x1, levelHeight, positions) {
+    if (!node) return;
+    const x = (parseInt(x0) + parseInt(x1)) / 2;
+    const y = depth * levelHeight + 40;
+    positions.set(node, { x, y });
+    if (node.left) layout(node.left, depth + 1, x0, x, levelHeight, positions);
+    if (node.right) layout(node.right, depth + 1, x, x1, levelHeight, positions);
+}
+
+function drawEdges(node, positions) {
+    if (!node) return;
+    const svg = document.getElementById('treeSvg');
+    const p = positions.get(node);
+    if (node.left) {
+        const c = positions.get(node.left);
+        drawLine(svg, p.x, p.y, c.x, c.y);
+        drawEdges(node.left, positions);
+    }
+    if (node.right) {
+        const c = positions.get(node.right);
+        drawLine(svg, p.x, p.y, c.x, c.y);
+        drawEdges(node.right, positions);
+    }
+}
+
+function drawNodes(node, positions) {
+    if (!node) return;
+    const svg = document.getElementById('treeSvg');
+    const p = positions.get(node);
+    drawCircle(svg, p.x, p.y, 18);
+    drawText(svg, p.x, p.y + 5, node.value);
+    drawNodes(node.left, positions);
+    drawNodes(node.right, positions);
+}
+
+function drawLine(svg, x1, y1, x2, y2) {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', '#888');
+    line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+}
+
+function drawCircle(svg, cx, cy, r) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', cx);
+    c.setAttribute('cy', cy);
+    c.setAttribute('r', r);
+    c.setAttribute('fill', '#fff');
+    c.setAttribute('stroke', '#333');
+    c.setAttribute('stroke-width', '2');
+    svg.appendChild(c);
+}
+
+function drawText(svg, x, y, text) {
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', x);
+    t.setAttribute('y', y);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('font-size', '14px');
+    t.textContent = text;
+    svg.appendChild(t);
+}
+</script>
+</body>
+</html>

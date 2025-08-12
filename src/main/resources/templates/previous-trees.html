@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Previous Trees</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px; border: 1px solid #ddd; }
+        pre { background: #f7f7f7; padding: 5px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+<h1>Previous Trees</h1>
+<a href="/enter-numbers">Back</a>
+<table>
+    <thead>
+    <tr>
+        <th>Created</th>
+        <th>Balanced</th>
+        <th>Input Numbers</th>
+        <th>Tree JSON</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="rec : ${records}">
+        <td th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${rec.balanced}"></td>
+        <td th:text="${rec.inputNumbers}"></td>
+        <td><pre th:text="${rec.treeJson}"></pre></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
