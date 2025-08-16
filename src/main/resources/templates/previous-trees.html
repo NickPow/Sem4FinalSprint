@@ -4,32 +4,115 @@
     <meta charset="UTF-8">
     <title>Previous Trees</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 8px; border: 1px solid #ddd; }
-        pre { background: #f7f7f7; padding: 5px; white-space: pre-wrap; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .back-link:hover {
+            background-color: #545b62;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background: white;
+        }
+        th, td { 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e9ecef;
+        }
+        pre { 
+            background: #f8f9fa; 
+            padding: 8px; 
+            white-space: pre-wrap; 
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 3px;
+            margin: 0;
+        }
+        .balanced-yes {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .balanced-no {
+            color: #6c757d;
+        }
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
     </style>
 </head>
 <body>
-<h1>Previous Trees</h1>
-<a href="/enter-numbers">Back</a>
-<table>
+<div class="container">
+<h1>Previous Binary Search Trees</h1>
+<a href="/enter-numbers" class="back-link">← Back to Tree Builder</a>
+
+<div th:if="${#lists.isEmpty(records)}" class="no-data">
+    <p>No trees have been created yet. <a href="/enter-numbers">Create your first tree!</a></p>
+</div>
+
+<table th:if="${!#lists.isEmpty(records)}">
     <thead>
     <tr>
         <th>Created</th>
         <th>Balanced</th>
         <th>Input Numbers</th>
-        <th>Tree JSON</th>
+        <th>Tree Structure (JSON)</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="rec : ${records}">
-        <td th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-        <td th:text="${rec.balanced}"></td>
+        <td th:text="${#temporals.format(rec.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td>
+            <span th:class="${rec.balanced} ? 'balanced-yes' : 'balanced-no'" 
+                  th:text="${rec.balanced} ? 'Yes' : 'No'"></span>
+        </td>
         <td th:text="${rec.inputNumbers}"></td>
         <td><pre th:text="${rec.treeJson}"></pre></td>
     </tr>
     </tbody>
 </table>
+</div>
 </body>
 </html>

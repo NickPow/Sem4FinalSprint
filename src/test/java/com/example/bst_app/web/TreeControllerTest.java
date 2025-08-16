@@ -52,4 +52,52 @@ class TreeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Previous Trees")));
     }
+
+    @Test
+    void processNumbers_invalidInput_returnsBadRequest() throws Exception {
+        String body = mapper.writeValueAsString(Map.of(
+                "numbers", "10, invalid, 15",
+                "balanced", false
+        ));
+
+        mockMvc.perform(post("/process-numbers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Input validation failed")));
+    }
+
+    @Test
+    void processNumbers_emptyInput_returnsBadRequest() throws Exception {
+        String body = mapper.writeValueAsString(Map.of(
+                "numbers", "",
+                "balanced", false
+        ));
+
+        mockMvc.perform(post("/process-numbers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void processNumbers_balancedTree_returnsJson() throws Exception {
+        String body = mapper.writeValueAsString(Map.of(
+                "numbers", "1, 2, 3, 4, 5",
+                "balanced", true
+        ));
+
+        mockMvc.perform(post("/process-numbers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("\"value\"")));
+    }
+
+    @Test
+    void rootRedirect_redirectsToEnterNumbers() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/enter-numbers"));
+    }
 }
